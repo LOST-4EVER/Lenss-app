@@ -2,18 +2,22 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, TouchableOpacity, SafeAreaView, Modal, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { getAllPhotos, deletePhoto } from '../utils/storage';
-import { Photo } from '../types';
+import { Photo, RootStackParamList } from '../types';
 import { ChevronLeft, Calendar, Trash2, X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '../theme/colors';
-import Animated, { FadeIn, FadeOut, ScaleInCenter, ScaleOutCenter } from 'react-native-reanimated';
+import Animated, { FadeIn, ScaleInCenter } from 'react-native-reanimated';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 const COLUMN_COUNT = 3;
 const SPACING = 2;
 const ITEM_SIZE = (width - (COLUMN_COUNT + 1) * SPACING) / COLUMN_COUNT;
 
-const GalleryScreen = ({ navigation }: any) => {
+type Props = NativeStackScreenProps<RootStackParamList, 'Gallery'>;
+
+const GalleryScreen = ({ navigation }: Props) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
@@ -22,9 +26,11 @@ const GalleryScreen = ({ navigation }: any) => {
     setPhotos(data);
   }, []);
 
-  useEffect(() => {
-    loadPhotos();
-  }, [loadPhotos]);
+  useFocusEffect(
+    useCallback(() => {
+      loadPhotos();
+    }, [loadPhotos])
+  );
 
   const formatDate = useCallback((timestamp: string) => {
     const date = new Date(timestamp);

@@ -1,18 +1,22 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Dimensions, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { X, RotateCw, Zap, ZapOff, Check, ArrowRight } from 'lucide-react-native';
+import { X, RotateCw, Zap, ZapOff, Check } from 'lucide-react-native';
 import { savePhotoFile, savePhotoMetadata } from '../utils/storage';
 import * as Haptics from 'expo-haptics';
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 import { Colors } from '../theme/colors';
 import { Image } from 'expo-image';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
 
 const { width, height } = Dimensions.get('window');
 
 const MOODS = ['😊', '🤩', '😴', '🧘', '🤔', '💪', '🔥', '🌈'];
 
-const CameraScreen = ({ navigation }: any) => {
+type Props = NativeStackScreenProps<RootStackParamList, 'Camera'>;
+
+const CameraScreen = ({ navigation }: Props) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [flash, setFlash] = useState<'off' | 'on'>('off');

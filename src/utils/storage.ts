@@ -68,6 +68,22 @@ export const deletePhoto = async (id: number, uri: string): Promise<void> => {
   }
 };
 
+export const clearAllData = async (): Promise<void> => {
+  try {
+    const sqlite = await getDB();
+    await sqlite.runAsync('DELETE FROM photos;');
+    
+    const photosDir = `${FileSystem.documentDirectory}photos/`;
+    const dirInfo = await FileSystem.getInfoAsync(photosDir);
+    if (dirInfo.exists) {
+      await FileSystem.deleteAsync(photosDir, { idempotent: true });
+    }
+  } catch (error) {
+    console.error('Failed to clear all data:', error);
+    throw error;
+  }
+};
+
 export const savePhotoFile = async (sourceUri: string): Promise<string> => {
   try {
     const photosDir = `${FileSystem.documentDirectory}photos/`;

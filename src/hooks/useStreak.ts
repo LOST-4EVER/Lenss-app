@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { getAllPhotos } from '../utils/storage';
-
-const STREAK_KEY = 'daily_photo_streak';
+import { STREAK_KEY } from '../constants';
 
 export const useStreak = () => {
   const [streak, setStreak] = useState(0);
@@ -17,20 +16,24 @@ export const useStreak = () => {
         return;
       }
 
-      const todayStr = new Date().toDateString();
-      const lastPhotoDateStr = new Date(photos[0].timestamp).toDateString();
+      const now = new Date();
+      const todayStr = now.toDateString();
+      
+      // Ensure we compare based on local date string for consistency
+      const lastPhotoDateStr = new Date(photos[0].timestamp.replace(' ', 'T') + 'Z').toDateString();
       
       const isTodayCaptured = todayStr === lastPhotoDateStr;
       setHasTakenToday(isTodayCaptured);
 
-      // Calculate streak logic efficiently
       let currentStreak = 0;
       let checkDate = new Date();
       checkDate.setHours(0, 0, 0, 0);
 
-      const photoDates = new Set(photos.map(p => new Date(p.timestamp).toDateString()));
+      // Create a set of local date strings for efficient lookup
+      const photoDates = new Set(photos.map(p => 
+        new Date(p.timestamp.replace(' ', 'T') + 'Z').toDateString()
+      ));
 
-      // If today's photo is missing, start checking from yesterday
       if (!photoDates.has(todayStr)) {
         checkDate.setDate(checkDate.getDate() - 1);
       }

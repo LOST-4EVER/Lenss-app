@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, SafeAreaView, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { ChevronLeft, Bell, Lock, ShieldCheck, Trash2, Info } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '../theme/colors';
+import { clearAllData } from '../utils/storage';
+import { NOTIFICATION_HOUR, NOTIFICATION_MINUTE, NOTIFICATION_TIME_STR } from '../constants';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
 
-const SettingsScreen = ({ navigation }: any) => {
+type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
+
+const SettingsScreen = ({ navigation }: Props) => {
   const [remindersEnabled, setRemindersEnabled] = useState(false);
-  const [notificationTime, setNotificationTime] = useState('20:00');
 
   useEffect(() => {
     checkNotificationStatus();
@@ -43,11 +48,34 @@ const SettingsScreen = ({ navigation }: any) => {
         sound: true,
       },
       trigger: {
-        hour: 20,
-        minute: 0,
+        hour: NOTIFICATION_HOUR,
+        minute: NOTIFICATION_MINUTE,
         repeats: true,
       },
     });
+  };
+
+  const handleClearData = () => {
+    Alert.alert(
+      'Clear All Data?',
+      'This will permanently delete all your photos and reset your streak. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Clear Everything', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearAllData();
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              Alert.alert('Success', 'All data has been cleared.');
+            } catch (e) {
+              Alert.alert('Error', 'Failed to clear data.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -75,7 +103,7 @@ const SettingsScreen = ({ navigation }: any) => {
             />
           </View>
           <Text style={styles.settingDescription}>
-            We'll nudge you at 8:00 PM if you haven't taken your photo.
+            We'll nudge you at {NOTIFICATION_TIME_STR} if you haven't taken your photo.
           </Text>
         </View>
 
@@ -99,7 +127,7 @@ const SettingsScreen = ({ navigation }: any) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data Management</Text>
-          <TouchableOpacity style={styles.dangerRow}>
+          <TouchableOpacity style={styles.dangerRow} onPress={handleClearData}>
             <View style={styles.settingInfo}>
               <Trash2 size={22} color="#dc3545" />
               <Text style={[styles.settingLabel, { color: '#dc3545' }]}>Clear All Data</Text>

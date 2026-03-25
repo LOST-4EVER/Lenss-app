@@ -1,13 +1,17 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Camera, Image as ImageIcon, Flame, CheckCircle2, Settings as SettingsIcon } from 'lucide-react-native';
 import { useStreak } from '../hooks/useStreak';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '../theme/colors';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
 
-const HomeScreen = ({ navigation }: any) => {
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const HomeScreen = ({ navigation }: Props) => {
   const { streak, hasTakenToday, refreshStreak } = useStreak();
 
   useFocusEffect(
