@@ -20,15 +20,20 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS photos (
       id INTEGER PRIMARY KEY NOT NULL, 
       uri TEXT NOT NULL, 
+      caption TEXT,
+      mood TEXT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 };
 
-export const savePhotoMetadata = async (uri: string): Promise<number> => {
+export const savePhotoMetadata = async (uri: string, caption?: string, mood?: string): Promise<number> => {
   try {
     const sqlite = await getDB();
-    const result = await sqlite.runAsync('INSERT INTO photos (uri) VALUES (?);', [uri]);
+    const result = await sqlite.runAsync(
+      'INSERT INTO photos (uri, caption, mood) VALUES (?, ?, ?);', 
+      [uri, caption || '', mood || '']
+    );
     return result.lastInsertRowId;
   } catch (error) {
     console.error('Failed to save photo metadata:', error);
@@ -44,6 +49,22 @@ export const getAllPhotos = async (): Promise<Photo[]> => {
   } catch (error) {
     console.error('Failed to fetch photos:', error);
     return [];
+  }
+};
+
+export const deletePhoto = async (id: number, uri: string): Promise<void> => {
+  try {
+    const sqlite = await getDB();
+    await sqlite.runAsync('DELETE FROM photos WHERE id = ?;', [id]);
+    
+    // Also delete the physical file
+    const fileInfo = await FileSystem.getInfoAsync(uri);
+    if (fileInfo.exists) {
+      await FileSystem.deleteAsync(uri);
+    }
+  } catch (error) {
+    console.error('Failed to delete photo:', error);
+    throw error;
   }
 };
 

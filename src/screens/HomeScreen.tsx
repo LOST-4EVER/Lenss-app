@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { Camera, Image as ImageIcon, Flame, CheckCircle2 } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, Flame, CheckCircle2, Settings as SettingsIcon } from 'lucide-react-native';
 import { useStreak } from '../hooks/useStreak';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,6 +26,11 @@ const HomeScreen = ({ navigation }: any) => {
     navigation.navigate('Gallery');
   }, [navigation]);
 
+  const handleSettingsPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    navigation.navigate('Settings');
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -35,11 +40,16 @@ const HomeScreen = ({ navigation }: any) => {
       
       <View style={styles.safeArea}>
         <View style={styles.header}>
-          <Text style={styles.logo}>Lens</Text>
-          <View style={[styles.streakCard, streak > 0 ? styles.activeStreak : styles.inactiveStreak]}>
-            <Flame size={20} color={streak > 0 ? Colors.accent : Colors.text.secondary} fill={streak > 0 ? Colors.accent : "transparent"} />
-            <Text style={[styles.streakValue, streak > 0 ? styles.activeText : styles.inactiveText]}>{streak}</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.logo}>Lens</Text>
+            <View style={[styles.streakCard, streak > 0 ? styles.activeStreak : styles.inactiveStreak]}>
+              <Flame size={18} color={streak > 0 ? Colors.accent : Colors.text.secondary} fill={streak > 0 ? Colors.accent : "transparent"} />
+              <Text style={[styles.streakValue, streak > 0 ? styles.activeText : styles.inactiveText]}>{streak}</Text>
+            </View>
           </View>
+          <TouchableOpacity onPress={handleSettingsPress} style={styles.settingsBtn}>
+            <SettingsIcon size={24} color={Colors.text.main} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.mainContent}>
@@ -108,6 +118,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settingsBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   logo: {
     fontSize: 28,
